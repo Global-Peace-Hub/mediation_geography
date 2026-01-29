@@ -35,10 +35,11 @@
 
   // load data
   let geo;
+  let current_period = "2023-2024";
   let scatter;
   let geo_data;
   let map;
-  let path = ["./elisa_map.csv", "./final_month.csv"];
+  let path = ["./jan26.csv", "./final_month.csv"];
   let conflict_groups;
   let cleaned_geo;
   let cleaned_geo_1;
@@ -250,7 +251,7 @@
               5,
               10, // agreements_sum = 10 → radius = 15
               10,
-              20, // agreements_sum = 50 → radius = 25 (adjust scale as needed)
+              20, // agreements_sum = 50 → radius = 25
             ],
             "circle-color": "#FF5722",
             "circle-opacity": 0.5,
@@ -266,6 +267,11 @@
 
   function updateMapData(conflictData) {
     selectedCountry = conflictData;
+    if (selectedCountry === "Sudan" || selectedCountry === "Yemen") {
+      current_period = "2018-2024";
+    } else {
+      current_period = "2023-2024";
+    }
 
     const entry = conflict_groups.find(([name]) => name === conflictData);
     let update_data = entry[1];
@@ -333,45 +339,36 @@
     d3.select(y_axis_grp).call(yAxis);
   }
 
-  // Data state
-  let dates = [];
-  let selectedDateIndex = 0;
-  let filtered_geo = [];
+  // // Data state
+  // let dates = [];
+  // let selectedDateIndex = 0;
+  // let filtered_geo = [];
 
-  // Extract and sort dates when sortedByDate is ready
-  $: if (sortedByDate) {
-    const dateSet = new Set(
-      sortedByDate.map((d) => d.YYYYMM).filter((ym) => ym && ym.length > 4),
-    );
-    dates = Array.from(dateSet).sort();
-    // selectedDateIndex = dates.length - 1;
-    updateFilteredGeo();
-  }
+  // // Extract and sort dates when sortedByDate is ready
+  // $: if (sortedByDate) {
+  //   const dateSet = new Set(
+  //     sortedByDate.map((d) => d.YYYYMM).filter((ym) => ym && ym.length > 4),
+  //   );
+  //   dates = Array.from(dateSet).sort();
+  //   // selectedDateIndex = dates.length - 1;
+  //   updateFilteredGeo();
+  // }
 
-  function updateFilteredGeo() {
-    const selectedDate = dates[selectedDateIndex];
-    filtered_geo = sortedByDate.filter((d) => d.YYYYMM === selectedDate);
-    console.log("Filtered data:", filtered_geo);
-  }
+  // function updateFilteredGeo() {
+  //   const selectedDate = dates[selectedDateIndex];
+  //   filtered_geo = sortedByDate.filter((d) => d.YYYYMM === selectedDate);
+  //   console.log("Filtered data:", filtered_geo);
+  // }
 
-  function formatLabel(index) {
-    const yyyymm = dates[index];
-    if (!yyyymm) return "";
-    return `${yyyymm.slice(4)}-${yyyymm.slice(0, 4)}`; // MM-YYYY
-  }
+  // function formatLabel(index) {
+  //   const yyyymm = dates[index];
+  //   if (!yyyymm) return "";
+  //   return `${yyyymm.slice(4)}-${yyyymm.slice(0, 4)}`; // MM-YYYY
+  // }
 </script>
 
 <main>
   <h1>Geography in Conflict Mediation</h1>
-  <h2 style="font-size: 22px;">
-    <a href="https://www.elisadamico.net/" target="_blank">Elisa D'Amico</a>
-  </h2>
-
-  <h2 style="font-size: 18px; margin-top: 10px;">
-    Web & Visualizations: <a href="https://tomasvancisin.co.uk/"
-      >Tomas Vancisin</a
-    >
-  </h2>
   <div class="blog_text">
     <p>
       This interactive world map depicts the geographic distance between
@@ -387,7 +384,17 @@
       number of agreements reached between parties, with larger circles
       indicating more agreements. These agreements are both formal peace
       agreements as found in the PA-X database and other agreements from the
-      MEND database.
+      MEND database. Note that nearly 15% of agreements are the same agreement
+      signed in different locations by conflict parties (shuttle diplomacy).
+      Additionally, 5% of mediation events were conducted virtually, and the
+      location is unknown for 20% of mediation events.
+    </p>
+    <p>
+      In MEND, "mediation events" are defined as non-coercive facilitation of
+      communication or negotiation between disputing parties to help them reach
+      a mutually acceptable agreement or resolution to their conflict by an
+      external third-party. Mediation always involves at least two (local)
+      conflict stakeholders, at least one of them needing to be a belligerent.
     </p>
   </div>
   <div id="buttons">
@@ -438,6 +445,7 @@
     >
       Yemen
     </button>
+    <p>{current_period}</p>
   </div>
   <div class="map-wrapper">
     {#if isOverlayVisible}
@@ -566,28 +574,24 @@
     </svg>
   </div>
 
-  <div class="blog_text">
-    <h2 style="font-size: 16px; margin-top: 60px;">Data Sources</h2>
-    <ul style="font-size: 11px;">
-      <li>
-        Data on mediation events comes from the Mediation Event and Negotiators
-        Database (MEND) V1: Peter, Mateja; Badanjak, Sanja; D'Amico, Elisa;
-        Houghton, Kasia, 2025, "Mediation Event and Negotiators Database
-        (MEND)", <a
-          href="https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/PYRHS6"
-          >doi.org/10.7910/DVN/PYRHS6</a
-        >, Harvard Dataverse, V1
-      </li>
-      <li>
-        Data on peace agreements comes from the PA-X Database Version 9: Bell,
-        C., & Badanjak, S. (2019). Introducing PA-X: A new peace agreement
-        database and dataset. Journal of Peace Research, 56(3), 452-466.
-        Available at <a href="https://pax.peaceagreements.org/"
-          >pax.peaceagreements.org</a
-        >
-      </li>
-    </ul>
-  </div>
+  <h2 style="font-size: 16px;">
+    Text: <a href="https://www.elisadamico.net/" target="_blank"
+      >Elisa D'Amico</a
+    >
+  </h2>
+  <h2 style="font-size: 16px; font-weight: normal;">
+    <strong>Data</strong>: Peter, Mateja; Badanjak, Sanja; D'Amico, Elisa;
+    Houghton, Kasia, 2025, "Mediation Event and Negotiators Database (MEND)",
+    <a
+      href="https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/PYRHS6"
+      target="_blank">doi.org/10.7910/DVN/PYRHS6</a
+    >, Harvard Dataverse, V2.
+  </h2>
+  <h2 style="font-size: 16px;">
+    Web & Visualizations: <a href="https://tomasvancisin.co.uk/" target="_blank"
+      >Tomas Vancisin</a
+    >
+  </h2>
 </main>
 
 <style>
@@ -666,7 +670,8 @@
 
   h1 {
     width: 80%;
-    margin: 50px auto;
+    margin: 40px auto;
+    margin-bottom: 0px;
     text-align: center;
   }
 
